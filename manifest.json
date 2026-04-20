@@ -2,7 +2,7 @@
   "name": "Word of the Day",
   "short_name": "WordDay",
   "description": "Learn a new English word every day!",
-  "start_url": "/index.html",
+  "start_url": "/word-of-the-day/index.html",
   "display": "standalone",
   "background_color": "#fffef9",
   "theme_color": "#2e7d32",
