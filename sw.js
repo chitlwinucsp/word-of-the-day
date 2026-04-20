@@ -14,7 +14,7 @@ self.addEventListener("activate", e => {
 });
 
 self.addEventListener("fetch", e => {
-  if (e.request.url.includes("api.anthropic.com")) return;
+  if (e.request.url.includes("googleapis.com")) return;
   e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
 });
 
