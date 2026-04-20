@@ -379,25 +379,24 @@
     const chkEl  = document.getElementById("setupChecking");
     errEl.style.display = "none";
 
-    if (!input.startsWith("sk-ant-")) {
-      errEl.style.display = "block";
-      errEl.textContent = "❌ Key should start with sk-ant-. Please check and try again.";
-      return;
-    }
+    if(!input) return;
 
+    errEl.style.display = "none";
     chkEl.style.display = "block";
-    const ok = await verifyKey(input);
+
+    const isValid = await verifyKey(input);
     chkEl.style.display = "none";
 
-    if (ok === true) {
+    if (isValid === true) {
       localStorage.setItem("wotd_api_key", input);
       apiKey = input;
       showScreen("mainScreen");
       initApp();
     } else {
       errEl.style.display = "block";
-      errEl.textContent = "❌ " + (ok || "Invalid key. Please try again.");
+      errEl.textContent = "❌ Invalid API Key. Please check and try again.";
     }
+
   }
 
   async function verifyKey(key) {
