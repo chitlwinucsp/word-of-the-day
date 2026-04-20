@@ -34,7 +34,7 @@ function scheduleAlarm(hour, minute) {
 
   const now = new Date();
   const next = new Date();
-  next.setHours(hour, minute, 0, 0);
+  next.setHours(hour, minute, 0, 0); 
   if (next <= now) next.setDate(next.getDate() + 1); // push to tomorrow if already passed
 
   const delay = next - now;
