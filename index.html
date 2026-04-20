@@ -143,25 +143,23 @@
 <body>
 
   <!-- ── SETUP SCREEN ──────────────────────────────── -->
+  <!-- SETUP SCREEN -->
   <div id="setupScreen" class="screen active">
-    <div class="setup-icon">📖</div>
+    <div class="setup-icon">✨📖</div>
     <div class="setup-title">Word of the Day</div>
-    <div class="setup-sub">Enter your Anthropic API key to get started.<br>Stored only on this device.</div>
+    <div class="setup-sub">Powered by Google Gemini AI.<br>Stored only on your device.</div>
     <div class="setup-card">
-      <label class="field-label">Anthropic API Key</label>
-      <input class="text-input" type="password" id="setupKeyInput"
-        placeholder="sk-ant-api03-…"
-        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"/>
+      <label class="field-label">Google AI API Key</label>
+      <input class="text-input" type="password" id="setupKeyInput" placeholder="AIzaSy..." autocomplete="off"/>
       <div class="field-hint">
-        Get your free key at
-        <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>.
-        Never sent to any server — saved only on your device.
+        Get your free key at 
+        <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>.
+        (No billing/credit card required)
       </div>
-      <button class="primary-btn" onclick="submitSetup()">Save &amp; Start Learning 🚀</button>
-      <div class="inline-info" id="setupChecking">Verifying key…</div>
+      <button class="primary-btn" onclick="submitSetup()">Save & Start Learning 🚀</button>
+      <div class="inline-info" id="setupChecking">Verifying key...</div>
       <div class="inline-error" id="setupError"></div>
     </div>
-    <div class="privacy-note">🔒 Stored via <span>localStorage</span> — no server, no tracking.</div>
   </div>
 
   <!-- ── MAIN SCREEN ───────────────────────────────── -->
@@ -300,8 +298,27 @@
 
   // ── BOOT ────────────────────────────────────────────────
   if (apiKey) {
+    await verifyKey(apiKey)
     showScreen("mainScreen");
     initApp();
+  }
+
+  // ── REPLACED VERIFY KEY LOGIC ──
+  async function verifyKey(key) {
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: "Respond with the word 'OK'" }] }]
+        })
+      });
+      if (res.ok) return true;
+      const d = await res.json();
+      return d?.error?.message || "Invalid key.";
+    } catch {
+      return "Connection failed.";
+    }
   }
 
   // ── SERVICE WORKER ──────────────────────────────────────
@@ -408,7 +425,50 @@
   }
 
   // ── WORD LOADING ────────────────────────────────────────
+   // ── REPLACED WORD LOADING LOGIC ──
   async function loadWord(force = false) {
+    const cacheKey = `${currentLevel}_${todayKey}`;
+    if (!force && wordCache[cacheKey]) { renderWord(wordCache[cacheKey]); return; }
+
+    document.getElementById("cardBody").innerHTML =
+      `<div class="loading"><div class="spinner"></div><div class="loading-text">Gemini is thinking…</div></div>`;
+
+    const prompt = `You are an English teacher. Provide ONE unique word for a ${currentLevel} learner. 
+    Respond ONLY with a raw JSON object (no markdown, no backticks):
+    {"word":"...","part_of_speech":"...","pronunciation":"...","definition":"...","example":"...","tip":"...","synonyms":["...","..."]}`;
+
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { responseMimeType: "application/json" } // Forces JSON output
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error?.message || "Google API Error");
+
+      // Gemini response structure is: candidates[0].content.parts[0].text
+      const rawText = data.candidates[0].content.parts[0].text;
+      const word = JSON.parse(rawText);
+      
+      wordCache[cacheKey] = word;
+      renderWord(word);
+    } catch(e) {
+      console.error(e);
+      document.getElementById("cardBody").innerHTML = `
+        <div class="error-box">
+          <div style="font-size:32px;margin-bottom:10px">⚠️</div>
+          <div style="font-size:14px;margin-bottom:14px">Failed to load: ${e.message}</div>
+          <button class="btn btn-new" onclick="loadWord(true)">Try Again</button>
+        </div>`;
+    }
+  }
+
+  
+  async function loadWordOldClaude(force = false) {
     const cacheKey = `${currentLevel}_${todayKey}`;
     if (!force && wordCache[cacheKey]) { renderWord(wordCache[cacheKey]); return; }
 
