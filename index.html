@@ -1,130 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <meta name="theme-color" content="#2e7d32" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Word of the Day" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <meta name="theme-color" content="#2e7d32"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="Word of the Day"/>
   <title>Word of the Day</title>
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png"/>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --accent: #2e7d32; --badge: #43a047; --bg-tint: #e8f5e9; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--accent:#2e7d32;--badge:#43a047;--bg-tint:#e8f5e9}
 
-    body {
-      font-family: Georgia, 'Times New Roman', serif;
-      min-height: 100vh;
-      background: radial-gradient(ellipse at 30% 20%, var(--bg-tint) 0%, #fffef9 60%, #f5f0e8 100%);
-      display: flex; flex-direction: column; align-items: center;
-      padding: 32px 16px 48px; transition: background 0.5s ease;
+    body{
+      font-family:Georgia,'Times New Roman',serif;
+      min-height:100vh;
+      background:radial-gradient(ellipse at 30% 20%,var(--bg-tint) 0%,#fffef9 60%,#f5f0e8 100%);
+      display:flex;flex-direction:column;align-items:center;
+      padding:32px 16px 80px;transition:background .5s;
     }
 
-    /* SETUP SCREEN */
-    #setupScreen {
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; min-height: 85vh; width: 100%; max-width: 420px;
-    }
-    .setup-icon { font-size: 52px; margin-bottom: 16px; }
-    .setup-title { font-size: 26px; font-weight: 700; color: #1a1108; margin-bottom: 8px; text-align: center; }
-    .setup-sub { font-size: 14px; color: #888; text-align: center; line-height: 1.6; margin-bottom: 28px; font-style: italic; }
-    .setup-card { background: #fffef9; border-radius: 18px; box-shadow: 0 8px 40px rgba(0,0,0,0.1); padding: 28px 24px; width: 100%; border: 1px solid rgba(0,0,0,0.07); }
-    .setup-label { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); opacity: 0.75; margin-bottom: 8px; display: block; }
-    .setup-input { width: 100%; padding: 12px 14px; border: 1.5px solid #e0d8cc; border-radius: 10px; font-size: 14px; font-family: monospace; color: #2c2416; background: #faf8f3; outline: none; transition: border-color 0.2s; margin-bottom: 6px; }
-    .setup-input:focus { border-color: var(--accent); }
-    .setup-hint { font-size: 12px; color: #bbb; margin-bottom: 20px; line-height: 1.5; }
-    .setup-hint a { color: var(--accent); text-decoration: none; }
-    .setup-btn { width: 100%; padding: 13px; background: var(--accent); color: #fff; border: none; border-radius: 12px; font-size: 15px; font-family: Georgia, serif; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
-    .setup-btn:active { transform: scale(0.98); opacity: 0.9; }
-    .setup-error { background: #fce4ec; color: #c2185b; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-top: 12px; display: none; line-height: 1.5; }
-    .setup-checking { text-align: center; padding: 10px 0 4px; font-size: 14px; color: #999; font-style: italic; display: none; }
-    .privacy-note { margin-top: 18px; font-size: 12px; color: #aaa; text-align: center; line-height: 1.6; }
-    .privacy-note span { color: var(--accent); }
+    /* ── SCREENS ──────────────────────────────── */
+    .screen{display:none;width:100%;flex-direction:column;align-items:center}
+    .screen.active{display:flex}
 
-    /* MAIN APP */
-    #mainApp { display: none; width: 100%; flex-direction: column; align-items: center; }
-    .date-label { font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); opacity: 0.7; margin-bottom: 6px; text-align: center; }
-    h1 { font-size: clamp(26px, 7vw, 40px); font-weight: 700; color: #1a1108; letter-spacing: -0.02em; text-align: center; }
-    .underline { width: 48px; height: 3px; background: var(--accent); margin: 10px auto 22px; border-radius: 2px; opacity: 0.7; }
-    .level-bar { display: flex; gap: 6px; background: rgba(255,255,255,0.65); border-radius: 40px; padding: 5px 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 22px; }
-    .level-btn { padding: 7px 16px; border-radius: 30px; border: none; cursor: pointer; font-size: 13px; font-family: Georgia, serif; font-weight: 400; background: transparent; color: #666; transition: all 0.25s; }
-    .level-btn.active { background: var(--accent); color: #fff; font-weight: 700; }
-    .card { width: 100%; max-width: 460px; background: #fffef9; border-radius: 20px; box-shadow: 0 8px 48px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; border: 1px solid rgba(0,0,0,0.07); }
-    .card-stripe { height: 5px; background: linear-gradient(90deg, var(--accent), var(--badge)); }
-    .card-body { padding: 26px 24px 22px; }
-    .loading { text-align: center; padding: 44px 0; }
-    .spinner { display: inline-block; width: 36px; height: 36px; border: 3px solid var(--bg-tint); border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 0.9s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { margin-top: 14px; font-size: 14px; color: #999; font-style: italic; }
-    .error-box { text-align: center; padding: 36px 16px; color: #c0392b; }
-    .meta-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
-    .pos-badge { background: var(--badge); color: #fff; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; }
-    .pronunciation { font-size: 14px; color: #aaa; font-style: italic; }
-    .word-display { font-size: clamp(38px, 10vw, 52px); font-weight: 700; color: #1a1108; letter-spacing: -0.02em; line-height: 1; margin-bottom: 16px; }
-    .divider { height: 1px; background: #f0ece3; margin-bottom: 16px; }
-    .section-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); opacity: 0.65; margin-bottom: 5px; }
-    .definition { font-size: 16px; color: #2c2416; line-height: 1.6; margin-bottom: 16px; }
-    .example-box { background: var(--bg-tint); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 14px; margin-bottom: 16px; }
-    .example-text { font-size: 15px; color: #2c2416; font-style: italic; line-height: 1.5; }
-    .synonyms-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-    .syn-chip { padding: 4px 12px; background: #f5f0e8; border-radius: 20px; font-size: 13px; color: #5a4a2a; border: 1px solid #e8e0cc; }
-    .tip-box { background: #fffbf0; border: 1px dashed #e8d99a; border-radius: 10px; padding: 10px 14px; margin-bottom: 20px; font-size: 14px; color: #5a4a1a; line-height: 1.5; }
-    .actions { display: flex; gap: 10px; }
-    .btn { flex: 1; padding: 11px 0; border-radius: 10px; cursor: pointer; font-size: 14px; font-family: Georgia, serif; border: none; transition: opacity 0.2s, transform 0.1s; }
-    .btn:active { transform: scale(0.97); }
-    .btn-save { background: #f5f0e8; border: 1px solid #e8e0cc; color: #888; }
-    .btn-save.liked { background: #fce4ec; border-color: #f48fb1; color: #c2185b; }
-    .btn-new { background: var(--accent); color: #fff; font-weight: 600; }
-    .saved-section { width: 100%; max-width: 460px; margin-top: 22px; }
-    .saved-title { font-size: 13px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); opacity: 0.7; margin-bottom: 10px; text-align: center; }
-    .saved-list { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-    .saved-chip { padding: 6px 14px; background: #fff; border: 1px solid var(--badge); border-radius: 20px; font-size: 13px; color: var(--accent); cursor: pointer; }
+    /* ── SETUP SCREEN ─────────────────────────── */
+    #setupScreen{justify-content:center;min-height:85vh;max-width:420px}
+    .setup-icon{font-size:52px;margin-bottom:16px}
+    .setup-title{font-size:26px;font-weight:700;color:#1a1108;margin-bottom:8px;text-align:center}
+    .setup-sub{font-size:14px;color:#888;text-align:center;line-height:1.6;margin-bottom:28px;font-style:italic}
+    .setup-card{background:#fffef9;border-radius:18px;box-shadow:0 8px 40px rgba(0,0,0,.1);padding:28px 24px;width:100%;border:1px solid rgba(0,0,0,.07)}
+    .field-label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);opacity:.75;margin-bottom:8px;display:block}
+    .text-input{width:100%;padding:12px 14px;border:1.5px solid #e0d8cc;border-radius:10px;font-size:14px;font-family:monospace;color:#2c2416;background:#faf8f3;outline:none;transition:border-color .2s;margin-bottom:6px}
+    .text-input:focus{border-color:var(--accent)}
+    .field-hint{font-size:12px;color:#bbb;margin-bottom:20px;line-height:1.5}
+    .field-hint a{color:var(--accent);text-decoration:none}
+    .primary-btn{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:15px;font-family:Georgia,serif;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;letter-spacing:.02em}
+    .primary-btn:active{transform:scale(.98);opacity:.9}
+    .inline-error{background:#fce4ec;color:#c2185b;border-radius:8px;padding:10px 14px;font-size:13px;margin-top:12px;display:none;line-height:1.5}
+    .inline-info{text-align:center;padding:10px 0 4px;font-size:14px;color:#999;font-style:italic;display:none}
+    .privacy-note{margin-top:18px;font-size:12px;color:#aaa;text-align:center;line-height:1.6}
+    .privacy-note span{color:var(--accent)}
 
-    /* Settings */
-    .settings-btn { position: fixed; bottom: 20px; right: 20px; width: 44px; height: 44px; background: #fff; border: 1px solid #e0d8cc; border-radius: 50%; font-size: 18px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.1); display: none; align-items: center; justify-content: center; transition: transform 0.2s; }
-    .settings-btn:hover { transform: rotate(30deg); }
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: flex-end; justify-content: center; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: #fffef9; border-radius: 20px 20px 0 0; padding: 24px 24px 36px; width: 100%; max-width: 460px; box-shadow: 0 -8px 40px rgba(0,0,0,0.12); }
-    .modal-title { font-size: 16px; font-weight: 700; color: #1a1108; margin-bottom: 18px; }
-    .modal-key-display { background: #f5f0e8; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-family: monospace; color: #5a4a2a; margin-bottom: 16px; word-break: break-all; }
-    .modal-actions { display: flex; gap: 10px; }
-    .modal-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; cursor: pointer; font-size: 14px; font-family: Georgia, serif; }
-    .modal-btn-danger { background: #fce4ec; color: #c2185b; }
-    .modal-btn-close { background: var(--accent); color: #fff; font-weight: 700; }
-    .footer { margin-top: 24px; font-size: 12px; color: #bbb; font-style: italic; text-align: center; }
+    /* ── MAIN SCREEN ──────────────────────────── */
+    .date-label{font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);opacity:.7;margin-bottom:6px;text-align:center}
+    h1{font-size:clamp(26px,7vw,40px);font-weight:700;color:#1a1108;letter-spacing:-.02em;text-align:center}
+    .underline{width:48px;height:3px;background:var(--accent);margin:10px auto 22px;border-radius:2px;opacity:.7}
+
+    .level-bar{display:flex;gap:6px;background:rgba(255,255,255,.65);border-radius:40px;padding:5px 6px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:22px}
+    .level-btn{padding:7px 16px;border-radius:30px;border:none;cursor:pointer;font-size:13px;font-family:Georgia,serif;font-weight:400;background:transparent;color:#666;transition:all .25s}
+    .level-btn.active{background:var(--accent);color:#fff;font-weight:700}
+
+    .card{width:100%;max-width:460px;background:#fffef9;border-radius:20px;box-shadow:0 8px 48px rgba(0,0,0,.1),0 2px 8px rgba(0,0,0,.06);overflow:hidden;border:1px solid rgba(0,0,0,.07)}
+    .card-stripe{height:5px;background:linear-gradient(90deg,var(--accent),var(--badge))}
+    .card-body{padding:26px 24px 22px}
+
+    .loading{text-align:center;padding:44px 0}
+    .spinner{display:inline-block;width:36px;height:36px;border:3px solid var(--bg-tint);border-top:3px solid var(--accent);border-radius:50%;animation:spin .9s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-text{margin-top:14px;font-size:14px;color:#999;font-style:italic}
+    .error-box{text-align:center;padding:36px 16px;color:#c0392b}
+
+    .meta-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+    .pos-badge{background:var(--badge);color:#fff;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:20px}
+    .pronunciation{font-size:14px;color:#aaa;font-style:italic}
+    .word-display{font-size:clamp(38px,10vw,52px);font-weight:700;color:#1a1108;letter-spacing:-.02em;line-height:1;margin-bottom:16px}
+    .divider{height:1px;background:#f0ece3;margin-bottom:16px}
+    .section-label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);opacity:.65;margin-bottom:5px}
+    .definition{font-size:16px;color:#2c2416;line-height:1.6;margin-bottom:16px}
+    .example-box{background:var(--bg-tint);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:16px}
+    .example-text{font-size:15px;color:#2c2416;font-style:italic;line-height:1.5}
+    .synonyms-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+    .syn-chip{padding:4px 12px;background:#f5f0e8;border-radius:20px;font-size:13px;color:#5a4a2a;border:1px solid #e8e0cc}
+    .tip-box{background:#fffbf0;border:1px dashed #e8d99a;border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:14px;color:#5a4a1a;line-height:1.5}
+
+    .actions{display:flex;gap:10px}
+    .btn{flex:1;padding:11px 0;border-radius:10px;cursor:pointer;font-size:14px;font-family:Georgia,serif;border:none;transition:opacity .2s,transform .1s}
+    .btn:active{transform:scale(.97)}
+    .btn-save{background:#f5f0e8;border:1px solid #e8e0cc;color:#888}
+    .btn-save.liked{background:#fce4ec;border-color:#f48fb1;color:#c2185b}
+    .btn-new{background:var(--accent);color:#fff;font-weight:600}
+
+    .saved-section{width:100%;max-width:460px;margin-top:22px}
+    .saved-title{font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);opacity:.7;margin-bottom:10px;text-align:center}
+    .saved-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+    .saved-chip{padding:6px 14px;background:#fff;border:1px solid var(--badge);border-radius:20px;font-size:13px;color:var(--accent);cursor:pointer;transition:background .2s}
+    .saved-chip:hover{background:var(--bg-tint)}
+
+    .footer{margin-top:24px;font-size:12px;color:#bbb;font-style:italic;text-align:center}
+
+    /* ── SETTINGS SCREEN ──────────────────────── */
+    #settingsScreen{max-width:460px}
+    .settings-header{display:flex;align-items:center;gap:14px;width:100%;margin-bottom:28px}
+    .back-btn{width:36px;height:36px;border-radius:50%;border:1px solid #e0d8cc;background:#fff;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.07);flex-shrink:0}
+    .settings-title{font-size:22px;font-weight:700;color:#1a1108;letter-spacing:-.01em}
+
+    .settings-card{background:#fffef9;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);width:100%;margin-bottom:16px;overflow:hidden}
+    .settings-section-title{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);opacity:.7;padding:16px 20px 10px;border-bottom:1px solid #f0ece3}
+    .settings-row{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #f0ece3}
+    .settings-row:last-child{border-bottom:none}
+    .settings-row-label{font-size:14px;color:#2c2416;font-family:Georgia,serif}
+    .settings-row-sub{font-size:12px;color:#aaa;margin-top:2px}
+
+    .time-input{padding:8px 12px;border:1.5px solid #e0d8cc;border-radius:10px;font-size:15px;font-family:Georgia,serif;color:#2c2416;background:#faf8f3;outline:none;cursor:pointer;width:110px;text-align:center}
+    .time-input:focus{border-color:var(--accent)}
+
+    .toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+    .toggle input{opacity:0;width:0;height:0}
+    .toggle-slider{position:absolute;inset:0;background:#e0d8cc;border-radius:24px;cursor:pointer;transition:.3s}
+    .toggle-slider::before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+    .toggle input:checked+.toggle-slider{background:var(--accent)}
+    .toggle input:checked+.toggle-slider::before{transform:translateX(20px)}
+
+    .key-display{font-size:13px;font-family:monospace;color:#5a4a2a;background:#f5f0e8;padding:6px 12px;border-radius:8px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    .settings-action-btn{padding:8px 16px;border-radius:20px;border:none;cursor:pointer;font-size:13px;font-family:Georgia,serif;transition:opacity .2s}
+    .btn-change{background:var(--accent);color:#fff}
+    .btn-remove{background:#fce4ec;color:#c2185b}
+
+    .notif-status{font-size:12px;padding:4px 10px;border-radius:20px;font-family:Georgia,serif}
+    .notif-granted{background:#e8f5e9;color:#2e7d32}
+    .notif-denied{background:#fce4ec;color:#c2185b}
+    .notif-default{background:#fff8e1;color:#f57c00}
+
+    /* ── FAB (settings button) ────────────────── */
+    .fab{position:fixed;bottom:24px;right:20px;width:48px;height:48px;background:var(--accent);border:none;border-radius:50%;font-size:20px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.2);display:none;align-items:center;justify-content:center;z-index:50;transition:transform .2s}
+    .fab:hover{transform:scale(1.08)}
+
+    /* ── TOAST ────────────────────────────────── */
+    .toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1108;color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;font-family:Georgia,serif;opacity:0;transition:all .3s;pointer-events:none;z-index:200;white-space:nowrap}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    /* ── INLINE MODAL (for key change) ───────── */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:flex-end;justify-content:center}
+    .overlay.open{display:flex}
+    .bottom-sheet{background:#fffef9;border-radius:20px 20px 0 0;padding:24px 24px 40px;width:100%;max-width:460px;box-shadow:0 -8px 40px rgba(0,0,0,.12)}
+    .sheet-title{font-size:16px;font-weight:700;color:#1a1108;margin-bottom:18px}
   </style>
 </head>
 <body>
 
-  <!-- SETUP SCREEN -->
-  <div id="setupScreen">
+  <!-- ── SETUP SCREEN ──────────────────────────────── -->
+  <div id="setupScreen" class="screen active">
     <div class="setup-icon">📖</div>
     <div class="setup-title">Word of the Day</div>
-    <div class="setup-sub">Enter your Anthropic API key to get started.<br>It stays on your device only.</div>
+    <div class="setup-sub">Enter your Anthropic API key to get started.<br>Stored only on this device.</div>
     <div class="setup-card">
-      <label class="setup-label">Anthropic API Key</label>
-      <input class="setup-input" type="password" id="apiKeyInput"
-        placeholder="sk-ant-api03-..."
-        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" />
-      <div class="setup-hint">
-        Get your key free at
+      <label class="field-label">Anthropic API Key</label>
+      <input class="text-input" type="password" id="setupKeyInput"
+        placeholder="sk-ant-api03-…"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"/>
+      <div class="field-hint">
+        Get your free key at
         <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>.
-        Stored only on this device — never sent to any server.
+        Never sent to any server — saved only on your device.
       </div>
-      <button class="setup-btn" onclick="submitKey()">Save &amp; Start Learning 🚀</button>
-      <div class="setup-checking" id="setupChecking">Verifying key…</div>
-      <div class="setup-error" id="setupError"></div>
+      <button class="primary-btn" onclick="submitSetup()">Save &amp; Start Learning 🚀</button>
+      <div class="inline-info" id="setupChecking">Verifying key…</div>
+      <div class="inline-error" id="setupError"></div>
     </div>
-    <div class="privacy-note">
-      🔒 Saved with <span>localStorage</span> on this device only.<br>No server. No account. No tracking.
-    </div>
+    <div class="privacy-note">🔒 Stored via <span>localStorage</span> — no server, no tracking.</div>
   </div>
 
-  <!-- MAIN APP -->
-  <div id="mainApp">
+  <!-- ── MAIN SCREEN ───────────────────────────────── -->
+  <div id="mainScreen" class="screen">
     <div class="date-label" id="dateLabel"></div>
     <h1>Word of the Day</h1>
     <div class="underline"></div>
@@ -146,107 +187,160 @@
     <div class="footer">A new word every day builds a lifetime of language 🌱</div>
   </div>
 
-  <button class="settings-btn" id="settingsBtn" onclick="openSettings()">⚙️</button>
+  <!-- ── SETTINGS SCREEN ──────────────────────────── -->
+  <div id="settingsScreen" class="screen">
+    <div class="settings-header">
+      <button class="back-btn" onclick="showScreen('mainScreen')">←</button>
+      <div class="settings-title">Settings</div>
+    </div>
 
-  <div class="modal-overlay" id="modalOverlay" onclick="closeSettings(event)">
-    <div class="modal">
-      <div class="modal-title">⚙️ API Key Settings</div>
-      <div class="section-label" style="margin-bottom:8px">Current Key</div>
-      <div class="modal-key-display" id="modalKeyDisplay"></div>
-      <div class="modal-actions">
-        <button class="modal-btn modal-btn-danger" onclick="clearKey()">🗑 Remove Key</button>
-        <button class="modal-btn modal-btn-close" onclick="closeSettings()">Close</button>
+    <!-- Alarm -->
+    <div class="settings-card">
+      <div class="settings-section-title">⏰ Daily Alarm</div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Alarm Time</div>
+          <div class="settings-row-sub">Daily word reminder</div>
+        </div>
+        <input class="time-input" type="time" id="alarmTimeInput" value="08:00" onchange="saveAlarmTime()"/>
       </div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Notifications</div>
+          <div class="settings-row-sub" id="notifSubLabel">Allow daily reminders</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="notif-status" id="notifStatusBadge"></span>
+          <button class="settings-action-btn btn-change" id="notifEnableBtn" onclick="requestNotifPermission()" style="display:none">Enable</button>
+        </div>
+      </div>
+
+      <div class="settings-row" id="testNotifRow" style="display:none">
+        <div>
+          <div class="settings-row-label">Test Notification</div>
+          <div class="settings-row-sub">Send one right now</div>
+        </div>
+        <button class="settings-action-btn btn-change" onclick="sendTestNotif()">Send Test</button>
+      </div>
+    </div>
+
+    <!-- API Key -->
+    <div class="settings-card">
+      <div class="settings-section-title">🔑 API Key</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Anthropic Key</div>
+          <div class="key-display" id="settingsKeyDisplay">—</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+          <button class="settings-action-btn btn-change" onclick="openChangeKey()">Change</button>
+          <button class="settings-action-btn btn-remove" onclick="removeKey()">Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- App -->
+    <div class="settings-card">
+      <div class="settings-section-title">📖 App</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Clear Saved Words</div>
+          <div class="settings-row-sub" id="savedCountLabel">0 words saved</div>
+        </div>
+        <button class="settings-action-btn btn-remove" onclick="clearSavedWords()">Clear</button>
+      </div>
+    </div>
+
+    <div style="height:24px"></div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" id="settingsFab" onclick="openSettings()">⚙️</button>
+
+  <!-- Change Key Sheet -->
+  <div class="overlay" id="changeKeyOverlay" onclick="closeChangeKey(event)">
+    <div class="bottom-sheet">
+      <div class="sheet-title">🔑 Change API Key</div>
+      <label class="field-label">New Anthropic API Key</label>
+      <input class="text-input" type="password" id="changeKeyInput"
+        placeholder="sk-ant-api03-…"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
+        style="margin-bottom:6px"/>
+      <div class="field-hint" style="margin-bottom:16px">
+        Get your key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>
+      </div>
+      <button class="primary-btn" onclick="confirmChangeKey()">Save New Key</button>
+      <div class="inline-info" id="changeKeyChecking">Verifying…</div>
+      <div class="inline-error" id="changeKeyError"></div>
     </div>
   </div>
 
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
 <script>
+  // ── CONSTANTS & STATE ───────────────────────────────────
   const LEVEL_COLORS = {
-    Beginner:     { accent:"#2e7d32", badge:"#43a047", bgTint:"#e8f5e9" },
-    Intermediate: { accent:"#1565c0", badge:"#1976d2", bgTint:"#e3f2fd" },
-    Advanced:     { accent:"#880e4f", badge:"#c2185b", bgTint:"#fce4ec" },
+    Beginner:     {accent:"#2e7d32",badge:"#43a047",bgTint:"#e8f5e9"},
+    Intermediate: {accent:"#1565c0",badge:"#1976d2",bgTint:"#e3f2fd"},
+    Advanced:     {accent:"#880e4f",badge:"#c2185b",bgTint:"#fce4ec"},
   };
 
   let currentLevel = "Beginner";
-  let wordCache = {};
-  let savedWords = JSON.parse(localStorage.getItem("wotd_saved") || "[]");
-  let currentWord = null;
-  let apiKey = localStorage.getItem("wotd_api_key") || "";
+  let wordCache    = {};
+  let savedWords   = JSON.parse(localStorage.getItem("wotd_saved") || "[]");
+  let currentWord  = null;
+  let apiKey       = localStorage.getItem("wotd_api_key") || "";
+  let alarmTime    = localStorage.getItem("wotd_alarm") || "08:00";
 
-  const today = new Date();
+  const today    = new Date();
   const todayKey = today.toISOString().slice(0,10);
 
-  // Init
-  apiKey ? showApp() : (document.getElementById("setupScreen").style.display = "flex");
-
-  // ── SETUP ───────────────────────────────────────
-  document.getElementById("apiKeyInput")?.addEventListener("keydown", e => { if(e.key==="Enter") submitKey(); });
-
-  async function submitKey() {
-    const input = document.getElementById("apiKeyInput").value.trim();
-    const errorEl = document.getElementById("setupError");
-    const checkEl = document.getElementById("setupChecking");
-    errorEl.style.display = "none";
-
-    if (!input.startsWith("sk-ant-")) {
-      errorEl.style.display = "block";
-      errorEl.textContent = "❌ Key should start with sk-ant-. Please check and try again.";
-      return;
-    }
-
-    checkEl.style.display = "block";
-
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": input,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true"
-        },
-        body: JSON.stringify({
-          model: "claude-haiku-4-5-20251001",
-          max_tokens: 10,
-          messages: [{ role:"user", content:"Hi" }]
-        })
-      });
-
-      checkEl.style.display = "none";
-
-      if (res.ok) {
-        localStorage.setItem("wotd_api_key", input);
-        apiKey = input;
-        showApp();
-      } else {
-        const err = await res.json();
-        errorEl.style.display = "block";
-        errorEl.textContent = "❌ " + (err?.error?.message || "Invalid key. Please try again.");
-      }
-    } catch(e) {
-      checkEl.style.display = "none";
-      errorEl.style.display = "block";
-      errorEl.textContent = "❌ Could not connect. Check your internet connection.";
-    }
+  // ── BOOT ────────────────────────────────────────────────
+  if (apiKey) {
+    showScreen("mainScreen");
+    initApp();
   }
 
-  // ── APP ─────────────────────────────────────────
-  function showApp() {
-    document.getElementById("setupScreen").style.display = "none";
-    document.getElementById("mainApp").style.display = "flex";
-    document.getElementById("settingsBtn").style.display = "flex";
+  // ── SERVICE WORKER ──────────────────────────────────────
+  let swReg = null;
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+      .then(reg => { swReg = reg; })
+      .catch(() => {});
+  }
+
+  function postToSW(msg) {
+    if (swReg?.active) swReg.active.postMessage(msg);
+  }
+
+  // ── SCREEN ROUTING ──────────────────────────────────────
+  function showScreen(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    const fab = document.getElementById("settingsFab");
+    fab.style.display = id === "mainScreen" ? "flex" : "none";
+    if (id === "settingsScreen") refreshSettingsUI();
+  }
+
+  // ── INIT APP ────────────────────────────────────────────
+  function initApp() {
     document.getElementById("dateLabel").textContent =
-      today.toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
+      today.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
     applyTheme(currentLevel);
     loadWord();
     renderSavedWords();
+    scheduleAlarm();
   }
 
+  // ── THEME ───────────────────────────────────────────────
   function applyTheme(level) {
     const c = LEVEL_COLORS[level];
     document.documentElement.style.setProperty("--accent", c.accent);
-    document.documentElement.style.setProperty("--badge", c.badge);
-    document.documentElement.style.setProperty("--bg-tint", c.bgTint);
+    document.documentElement.style.setProperty("--badge",  c.badge);
+    document.documentElement.style.setProperty("--bg-tint",c.bgTint);
   }
 
   function setLevel(level, btn) {
@@ -257,34 +351,71 @@
     loadWord();
   }
 
-  // ── SETTINGS ────────────────────────────────────
-  function openSettings() {
-    document.getElementById("modalKeyDisplay").textContent =
-      apiKey.slice(0,12) + "••••••••" + apiKey.slice(-4);
-    document.getElementById("modalOverlay").classList.add("open");
+  // ── SETUP ───────────────────────────────────────────────
+  document.getElementById("setupKeyInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") submitSetup();
+  });
+
+  async function submitSetup() {
+    const input = document.getElementById("setupKeyInput").value.trim();
+    const errEl  = document.getElementById("setupError");
+    const chkEl  = document.getElementById("setupChecking");
+    errEl.style.display = "none";
+
+    if (!input.startsWith("sk-ant-")) {
+      errEl.style.display = "block";
+      errEl.textContent = "❌ Key should start with sk-ant-. Please check and try again.";
+      return;
+    }
+
+    chkEl.style.display = "block";
+    const ok = await verifyKey(input);
+    chkEl.style.display = "none";
+
+    if (ok === true) {
+      localStorage.setItem("wotd_api_key", input);
+      apiKey = input;
+      showScreen("mainScreen");
+      initApp();
+    } else {
+      errEl.style.display = "block";
+      errEl.textContent = "❌ " + (ok || "Invalid key. Please try again.");
+    }
   }
 
-  function closeSettings(e) {
-    if (!e || e.target === document.getElementById("modalOverlay"))
-      document.getElementById("modalOverlay").classList.remove("open");
+  async function verifyKey(key) {
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": key,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 10,
+          messages: [{role:"user",content:"Hi"}]
+        })
+      });
+      if (res.ok) return true;
+      const d = await res.json();
+      return d?.error?.message || "Invalid key.";
+    } catch {
+      return "Could not connect. Check your internet.";
+    }
   }
 
-  function clearKey() {
-    if (!confirm("Remove your API key? You will need to enter it again.")) return;
-    localStorage.removeItem("wotd_api_key");
-    localStorage.removeItem("wotd_saved");
-    location.reload();
-  }
-
-  // ── WORD LOADING ────────────────────────────────
-  async function loadWord(force=false) {
+  // ── WORD LOADING ────────────────────────────────────────
+  async function loadWord(force = false) {
     const cacheKey = `${currentLevel}_${todayKey}`;
     if (!force && wordCache[cacheKey]) { renderWord(wordCache[cacheKey]); return; }
 
-    document.getElementById("cardBody").innerHTML = `
-      <div class="loading"><div class="spinner"></div><div class="loading-text">Finding your word…</div></div>`;
+    document.getElementById("cardBody").innerHTML =
+      `<div class="loading"><div class="spinner"></div><div class="loading-text">Finding your word…</div></div>`;
 
-    const date = today.toLocaleDateString("en-US", { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+    const date = today.toLocaleDateString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
     try {
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
@@ -297,12 +428,11 @@
         body: JSON.stringify({
           model: "claude-haiku-4-5-20251001",
           max_tokens: 500,
-          messages: [{ role:"user", content:
+          messages: [{role:"user",content:
             `You are an English vocabulary teacher. Today is ${date}. Give ONE word for a ${currentLevel} learner. Respond ONLY valid JSON, no markdown:\n{"word":"...","part_of_speech":"...","pronunciation":"...","definition":"...","example":"...","tip":"...","synonyms":["...","...","..."]}`
           }]
         })
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error?.message || "API error");
       const text = data.content.map(i=>i.text||"").join("");
@@ -313,7 +443,7 @@
       document.getElementById("cardBody").innerHTML = `
         <div class="error-box">
           <div style="font-size:32px;margin-bottom:10px">⚠️</div>
-          <div style="font-size:14px;margin-bottom:14px">${e.message || "Something went wrong."}</div>
+          <div style="font-size:14px;margin-bottom:14px">${e.message}</div>
           <button class="btn btn-new" style="max-width:140px;border-radius:10px;margin:0 auto;display:block"
             onclick="loadWord(true)">Try Again</button>
         </div>`;
@@ -322,7 +452,7 @@
 
   function renderWord(word) {
     currentWord = word;
-    const liked = savedWords.some(w=>w.word===word.word);
+    const liked = savedWords.some(w => w.word === word.word);
     document.getElementById("cardBody").innerHTML = `
       <div class="meta-row">
         <span class="pos-badge">${word.part_of_speech}</span>
@@ -349,10 +479,10 @@
 
   function toggleSave() {
     if (!currentWord) return;
-    const idx = savedWords.findIndex(w=>w.word===currentWord.word);
-    if (idx===-1) savedWords.push(currentWord); else savedWords.splice(idx,1);
+    const idx = savedWords.findIndex(w => w.word === currentWord.word);
+    if (idx === -1) savedWords.push(currentWord); else savedWords.splice(idx,1);
     localStorage.setItem("wotd_saved", JSON.stringify(savedWords));
-    const liked = savedWords.some(w=>w.word===currentWord.word);
+    const liked = savedWords.some(w => w.word === currentWord.word);
     const btn = document.getElementById("saveBtn");
     if (btn) { btn.className=`btn btn-save ${liked?"liked":""}`; btn.textContent=liked?"❤️ Saved":"🤍 Save"; }
     renderSavedWords();
@@ -360,18 +490,178 @@
 
   function renderSavedWords() {
     const section = document.getElementById("savedSection");
-    const list = document.getElementById("savedList");
+    const list    = document.getElementById("savedList");
     if (!savedWords.length) { section.style.display="none"; return; }
-    section.style.display="block";
-    list.innerHTML = savedWords.map(w=>`<span class="saved-chip" onclick="viewSaved('${w.word}')">${w.word}</span>`).join("");
+    section.style.display = "block";
+    list.innerHTML = savedWords.map(w =>
+      `<span class="saved-chip" onclick="viewSaved('${w.word}')">${w.word}</span>`
+    ).join("");
   }
 
   function viewSaved(wordText) {
-    const w = savedWords.find(s=>s.word===wordText);
+    const w = savedWords.find(s => s.word === wordText);
     if (w) { renderWord(w); window.scrollTo({top:0,behavior:"smooth"}); }
   }
 
-  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+  // ── SETTINGS ────────────────────────────────────────────
+  function openSettings() { showScreen("settingsScreen"); }
+
+  function refreshSettingsUI() {
+    // Key display
+    const kd = document.getElementById("settingsKeyDisplay");
+    kd.textContent = apiKey ? apiKey.slice(0,10) + "••••••" + apiKey.slice(-4) : "Not set";
+
+    // Alarm time
+    document.getElementById("alarmTimeInput").value = alarmTime;
+
+    // Saved count
+    document.getElementById("savedCountLabel").textContent = `${savedWords.length} word${savedWords.length!==1?"s":""} saved`;
+
+    // Notification status
+    updateNotifUI();
+  }
+
+  function updateNotifUI() {
+    const badge  = document.getElementById("notifStatusBadge");
+    const btn    = document.getElementById("notifEnableBtn");
+    const testRow= document.getElementById("testNotifRow");
+
+    if (!("Notification" in window)) {
+      badge.textContent = "Not supported";
+      badge.className   = "notif-status notif-denied";
+      return;
+    }
+
+    const p = Notification.permission;
+    if (p === "granted") {
+      badge.textContent = "✓ Enabled";
+      badge.className   = "notif-status notif-granted";
+      btn.style.display = "none";
+      testRow.style.display = "flex";
+    } else if (p === "denied") {
+      badge.textContent = "Blocked";
+      badge.className   = "notif-status notif-denied";
+      btn.style.display = "none";
+      testRow.style.display = "none";
+    } else {
+      badge.textContent = "Off";
+      badge.className   = "notif-status notif-default";
+      btn.style.display = "block";
+      testRow.style.display = "none";
+    }
+  }
+
+  async function requestNotifPermission() {
+    const perm = await Notification.requestPermission();
+    updateNotifUI();
+    if (perm === "granted") {
+      scheduleAlarm();
+      showToast("🔔 Notifications enabled!");
+    } else {
+      showToast("Notifications blocked. Enable in phone settings.");
+    }
+  }
+
+  function saveAlarmTime() {
+    alarmTime = document.getElementById("alarmTimeInput").value;
+    localStorage.setItem("wotd_alarm", alarmTime);
+    scheduleAlarm();
+    showToast(`⏰ Alarm set for ${formatTime(alarmTime)}`);
+  }
+
+  function scheduleAlarm() {
+    if (Notification.permission !== "granted") return;
+    const [h, m] = alarmTime.split(":").map(Number);
+    postToSW({ type:"SCHEDULE_ALARM", hour:h, minute:m });
+  }
+
+  function sendTestNotif() {
+    if (Notification.permission !== "granted") return;
+    new Notification("📖 Word of the Day!", {
+      body: "This is your daily English word reminder!",
+      icon: "icons/icon-192x192.png"
+    });
+    showToast("Test notification sent!");
+  }
+
+  function formatTime(t) {
+    const [h,m] = t.split(":").map(Number);
+    const ampm  = h >= 12 ? "PM" : "AM";
+    const h12   = h % 12 || 12;
+    return `${h12}:${String(m).padStart(2,"0")} ${ampm}`;
+  }
+
+  // ── API KEY CHANGE ──────────────────────────────────────
+  function openChangeKey() {
+    document.getElementById("changeKeyInput").value = "";
+    document.getElementById("changeKeyError").style.display   = "none";
+    document.getElementById("changeKeyChecking").style.display = "none";
+    document.getElementById("changeKeyOverlay").classList.add("open");
+  }
+
+  function closeChangeKey(e) {
+    if (!e || e.target === document.getElementById("changeKeyOverlay"))
+      document.getElementById("changeKeyOverlay").classList.remove("open");
+  }
+
+  async function confirmChangeKey() {
+    const input  = document.getElementById("changeKeyInput").value.trim();
+    const errEl  = document.getElementById("changeKeyError");
+    const chkEl  = document.getElementById("changeKeyChecking");
+    errEl.style.display = "none";
+
+    if (!input.startsWith("sk-ant-")) {
+      errEl.style.display  = "block";
+      errEl.textContent    = "❌ Key should start with sk-ant-";
+      return;
+    }
+
+    chkEl.style.display = "block";
+    const ok = await verifyKey(input);
+    chkEl.style.display = "none";
+
+    if (ok === true) {
+      localStorage.setItem("wotd_api_key", input);
+      apiKey = input;
+      document.getElementById("changeKeyOverlay").classList.remove("open");
+      refreshSettingsUI();
+      showToast("✅ API key updated!");
+    } else {
+      errEl.style.display = "block";
+      errEl.textContent   = "❌ " + ok;
+    }
+  }
+
+  document.getElementById("changeKeyInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") confirmChangeKey();
+  });
+
+  function removeKey() {
+    if (!confirm("Remove API key? The app will ask for a new one.")) return;
+    localStorage.removeItem("wotd_api_key");
+    localStorage.removeItem("wotd_saved");
+    location.reload();
+  }
+
+  function clearSavedWords() {
+    if (!savedWords.length) { showToast("No saved words yet."); return; }
+    if (!confirm("Clear all saved words?")) return;
+    savedWords = [];
+    localStorage.setItem("wotd_saved", JSON.stringify(savedWords));
+    refreshSettingsUI();
+    renderSavedWords();
+    showToast("Saved words cleared.");
+  }
+
+  // ── TOAST ────────────────────────────────────────────────
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
+  }
 </script>
 </body>
 </html>
